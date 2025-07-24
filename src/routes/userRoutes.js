@@ -7,8 +7,10 @@ import {
     updateUserProfile,
     getAllUsers,
     deactiveUser,
+    changePassword,
     getGoogleOAuthUrl,
-    googleOAuthLogin
+    googleOAuthLogin,
+    JoinNewsLetter,
 } from "../controllers/userController.js";
 import { validateAccessToken, authorizeRoles } from "../middleware/auth.js";
 
@@ -18,7 +20,9 @@ router.get("/getUserProfile", validateAccessToken, getUserProfile);
 router.put("/updateUserProfile", validateAccessToken, updateUserProfile);
 router.get("/getAllUsers", validateAccessToken, authorizeRoles(0), getAllUsers);
 router.put("/deactiveUser/:id", validateAccessToken, authorizeRoles(0), deactiveUser);
+router.post("/changePassword", validateAccessToken, changePassword);
 router.get("/getGoogleOAuthUrl", getGoogleOAuthUrl);
-router.get("/googleOAuthLogin", googleOAuthLogin);
+router.post("/googleOAuthLogin", googleOAuthLogin);
+router.post("/JoinNewsLetter", JoinNewsLetter);
 
 export default router;

@@ -1,28 +1,30 @@
 import Joi from "joi";
 import mongoose, { model } from "mongoose";
-const { Schema } = mongoose;
+const { Schema, Types } = mongoose;
 import { dbTableName } from "../utils/constants.js"
 
-const categorySchema = new Schema(
+const tagsSchema = new Schema(
     {
         name: { type: String, required: true },
-        description: { type: String, required: true },
+        categoryId: { type: Types.ObjectId, ref: dbTableName.CATEGORYS },
         isActive: { type: Boolean, default: true },
     },
     { timestamps: true },
 );
-export const categoryModel = model(dbTableName.CATEGORYS, categorySchema);
+export const tagsModel = model(dbTableName.TAGS, tagsSchema);
 
-export const categoryValidation = Joi.object({
+export const tagsValidation = Joi.object({
     name: Joi.string().trim().required().messages({
         'string.base': 'Name must be a string',
         'string.empty': 'Name is required',
         'any.required': 'Name is required',
     }),
-    description: Joi.string().trim().required().messages({
-        'string.base': 'Description must be a string',
-        'string.empty': 'Description is required',
-        'any.required': 'Description is required',
+    categoryId: Joi.string().length(24).hex().required().messages({
+        "string.base": "Category Id must be a string",
+        "string.empty": "Category Id is required",
+        "string.length": "Category Id must be exactly 24 characters",
+        "string.hex": "Category Id must be a valid hexadecimal string",
+        "any.required": "Category Id is required",
     }),
 });
 

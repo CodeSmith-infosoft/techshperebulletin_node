@@ -1,15 +1,17 @@
 import Joi from "joi";
 import mongoose, { model } from "mongoose";
-const { Schema } = mongoose;
+const { Schema, Types } = mongoose;
 import { dbTableName } from "../utils/constants.js"
 
 const authRegisterSchema = new Schema(
     {
-        name: { type: String, required: true },
+        name: { type: String, default: '' },
         email: { type: String, required: true },
-        password: { type: String },
-        role: { type: Number, required: true, default: 0 },
-        isActive: { type: Boolean, default: true },
+        password: { type: String, default: '' },
+        subscribedCats: [{ type: Types.ObjectId, ref: dbTableName.CATEGORYS }],
+        isSubscribed: { type: Boolean, default: false },
+        role: { type: Number, required: true, default: 3 },
+        isActive: { type: Boolean, default: false },
     },
     { timestamps: true },
 );
@@ -61,5 +63,26 @@ export const googleOAuthValidation = Joi.object({
         'string.empty': 'Authorization code is required',
         'string.email': 'Please provide a valid Authorization code',
         'any.required': 'Authorization code is required'
+    }),
+});
+
+export const changePasswordValidation = Joi.object({
+    oldPassword: Joi.string().min(6).max(30).required().messages({
+        'string.empty': 'oldPassword is required',
+        'string.min': 'oldPassword must be at least 6 characters',
+        'any.required': 'oldPassword is required'
+    }),
+    newPassword: Joi.string().min(6).max(30).required().messages({
+        'string.empty': 'newPassword is required',
+        'string.min': 'newPassword must be at least 6 characters',
+        'any.required': 'newPassword is required'
+    }),
+});
+
+export const JoinNewsLetterValidation = Joi.object({
+    email: Joi.string().email().trim().lowercase().required().messages({
+        "string.empty": "Email is required",
+        "string.email": "Please provide a valid email address",
+        "any.required": "Email is required",
     }),
 });

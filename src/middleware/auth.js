@@ -61,24 +61,3 @@ export function authorizeRoles(...allowedRoles) {
         };
     };
 };
-
-export async function validateAboutUSFiles(req, res, next) {
-    const files = req.files?.mediaFile || [];
-    try {
-        const invalidFile = files.find((file) => {
-            const isImage = file.mimetype.startsWith('image/');
-            const isVideo = file.mimetype.startsWith('video/');
-            if (isImage && file.size > 1 * 1024 * 1024) return true;
-            if (isVideo && file.size > 100 * 1024 * 1024) return true;
-            return false;
-        });
-        if (invalidFile) {
-            const sizeLimit = invalidFile.mimetype.startsWith('image/') ? '1MB' : '100MB';
-            return response.error(res, resStatusCode.CLIENT_ERROR, `${invalidFile.originalname} exceeds ${sizeLimit} limit.`, {});
-        };
-        next();
-    } catch (error) {
-        console.error('Error in validateAboutUSFiles:', error)
-        return response.error(res, resStatusCode.INTERNAL_SERVER_ERROR, resMessage.INTERNAL_SERVER_ERROR, {});
-    };
-};
