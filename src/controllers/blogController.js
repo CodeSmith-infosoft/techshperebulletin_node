@@ -5,17 +5,32 @@ import {
 import response from "../utils/response.js";
 import { resStatusCode, resMessage } from "../utils/constants.js";
 import { blogService } from "../services/blogService.js";
+import { userService } from "../services/userService.js";
 
 export const createBlog = async (req, res) => {
     const image = req.uploadedImages.find(file => file.field === 'image');
     req.body.image = image?.s3Url ?? "";
-    const { title, text } = req.body;
+    const { title, text, mailDescription } = req.body;
     const { error } = blogValidation.validate(req.body);
     if (error) {
         return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
     };
     try {
         await blogService.createBlog(req.body);
+        const getAllUsers = await userService.getUsers();
+        const subscribedUsers = getAllUsers.filter(user => user.isSubscribed && user.isActive);
+        const subscriberEmails = subscribedUsers.map(sub => sub.email);
+
+        console.log(subscriberEmails);
+        // const shortDescription = mailDescription.split(" ").slice(0, 200).join(" ");
+        // const subject = "📰 Just In: A New Blog from Techsphere Bulletin You Can’t Miss!";
+
+        // sendMail("blog", subject, subscriberEmails, {
+        //     title: title,
+        //     heroImage: req.body.image,
+        //     description: shortDescription,
+        //     base_URL: process.env.BASE_URL,
+        // });
         return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.BLOG_ADD, {});
     } catch (err) {
         console.error("createBlog Error:", err);
@@ -26,7 +41,7 @@ export const createBlog = async (req, res) => {
 export const getAllBlog = async (req, res) => {
     try {
         const { page = 1, limit = 10 } = req.query;
-        const filter = req.user ? {} : { isActive: true, isDelete: false };
+        const filter = req.user ? {isDelete : false} : { isActive: true, isDelete: false };
         const pagination = {
             page: parseInt(page),
             limit: parseInt(limit),
@@ -67,6 +82,8 @@ export const updateBlogById = async (req, res) => {
     if (error) {
         return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
     };
+    const image = req.uploadedImages.find(file => file.field === 'image');
+    req.body.image = image?.s3Url ?? "";
     try {
         const data = {
             id,

@@ -17,6 +17,7 @@ const newsSchema = new Schema(
         ],
         categoryId: { type: Types.ObjectId, ref: dbTableName.CATEGORYS },
         tagId: { type: Types.ObjectId, ref: dbTableName.TAGS },
+        isPromoted: { type: Boolean, default: false },
         isDelete: { type: Boolean, default: false },
         isActive: { type: Boolean, default: true },
     },
@@ -26,15 +27,22 @@ export const newsModel = model(dbTableName.NEWS, newsSchema);
 
 const newsArrayValidation = Joi.object({
     image: Joi.string().optional().messages({
-        'string.base': 'image must be a string',
-        'string.empty': 'image is required',
-        'any.required': 'image is required',
+        'string.base': 'News image must be a string',
     }),
-    p: Joi.number().optional().messages({
-        'number.base': 'Paragraph must be a number',
-        'any.required': 'Paragraph is required',
+    p: Joi.string().optional().messages({
+        'string.base': 'Paragraph must be a string',
     }),
 });
+
+const schema = Joi.object({
+    news: Joi.array()
+        .items(newsArrayValidation)
+        .optional()
+        .messages({
+            'array.base': 'News must be an array',
+        }),
+});
+
 
 export const newsValidation = Joi.object({
     title: Joi.string().trim().required().messages({
@@ -52,7 +60,7 @@ export const newsValidation = Joi.object({
         'string.empty': 'Description is required',
         'any.required': 'Description is required',
     }),
-    news: Joi.array().items(newsArrayValidation).messages({
+    news: Joi.array().items(newsArrayValidation).optional().messages({
         'array.base': 'News must be an array',
     }),
     categoryId: Joi.string().length(24).hex().required().messages({
@@ -69,6 +77,11 @@ export const newsValidation = Joi.object({
         "string.hex": "tag Id must be a valid hexadecimal string",
         "any.required": "tag Id is required",
     }),
+    isPromoted: Joi.boolean().required().messages({
+        "boolean.base": "isPromoted must be a boolean",
+        "any.required": "isPromoted is required",
+    })
+
 });
 
 export const idValidation = Joi.object({

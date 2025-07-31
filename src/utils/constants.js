@@ -75,4 +75,5 @@ export const dbTableName = {
     CATEGORYS: "categories",
     NEWS: "news",
     BLOGS: "blogs",
+    CONTACT: "contacts"
 };

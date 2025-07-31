@@ -38,16 +38,33 @@ export class blogService {
         };
     };
 
+    // static async updateBlogById(data) {
+    //     try {
+    //         const updateBlog = await blogModel.findByIdAndUpdate(
+    //             { _id: data.id },
+    //             { $set: data },
+    //             { new: false, runValidators: true }
+    //         );
+    //         return (updateBlog);
+    //     } catch (error) {
+    //         return (error);
+    //     };
+    // };
     static async updateBlogById(data) {
         try {
-            const updateBlog = await blogModel.findByIdAndUpdate(
-                { _id: data.id },
-                { $set: data },
-                { new: false, runValidators: true }
+            console.log('update payload:', data);
+            const { id, ...updateFields } = data;
+
+            const updateNews = await blogModel.findByIdAndUpdate(
+                id,
+                { $set: updateFields },
+                { new: true, runValidators: true }
             );
-            return (updateBlog);
+
+            return updateNews;
         } catch (error) {
-            return (error);
-        };
-    };
+            console.error('Update error:', error);
+            return error;
+        }
+    }
 };

@@ -31,6 +31,11 @@ export const blogValidation = Joi.object({
         'string.empty': 'Text is required',
         'any.required': 'Text is required',
     }),
+    mailDescription: Joi.string().required().messages({
+        'string.base': 'Mail Description must be a string',
+        'string.empty': 'Mail Description is required',
+        'any.required': 'Mail Description is required',
+    }),
 });
 
 export const idValidation = Joi.object({

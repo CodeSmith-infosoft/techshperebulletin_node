@@ -9,26 +9,30 @@ import { newsService } from "../services/newsService.js";
 export const createNews = async (req, res) => {
     const mainImage = req.uploadedImages?.find(file => file.field === 'mainImage');
     req.body.mainImage = mainImage?.s3Url ?? "";
-
-    const imageUrls = req.uploadedImages?.filter(file => file.field === 'image').map(file => file.s3Url) ?? [];
     const newsArray = req.body.news;
+    const uploadedImages = req.uploadedImages || [];
     const newsWithImages = Array.isArray(newsArray)
-        ? newsArray.map((item, index) => ({
-            ...item,
-            image: imageUrls[index] || item.image || ""
-        }))
+        ? newsArray.map((item, index) => {
+            const fieldName = `news[${index}][image]`;
+            const matchedImage = uploadedImages.find(file => file.field === fieldName);
+            return {
+                ...item,
+                image: matchedImage?.s3Url || item.image || ""
+            };
+        })
         : [];
-    const { title, description, news, categoryId, tagId } = req.body;
-
-    const data = {
-        ...req.body,
-        mainImage: req.body.mainImage,
-        image: newsWithImages,
-    };
+        const { title, description, news, categoryId, tagId, isPromoted } = req.body;
+        const data = {
+            ...req.body,
+            mainImage: req.body.mainImage,
+            news: newsWithImages,
+        };
+        console.log('newsArray',data);
     const { error } = newsValidation.validate(data);
     if (error) {
         return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
     };
+    console.log('error', error);
     try {
         await newsService.createNews(data);
         return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.NEWS_ADD, {});
@@ -40,7 +44,7 @@ export const createNews = async (req, res) => {
 
 export const getAllNews = async (req, res) => {
     try {
-        const { categoryName, latestNews, tagName, page = 1, limit = 10 } = req.query;
+        const { categoryName, latestNews, tagName, isPromoted, page = 1, limit = 10 } = req.query;
         const filter = { isDelete: false };
         if (!req.user) {
             filter.isActive = true;
@@ -55,6 +59,7 @@ export const getAllNews = async (req, res) => {
             categoryName,
             latestNews,
             tagName,
+            isPromoted,
             ...pagination,
         });
         return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.NEWS_LIST, {
@@ -85,12 +90,38 @@ export const getNewsById = async (req, res) => {
     };
 };
 
+export const getAllHomeNews = async (req, res) => {
+    try {
+        const groupedNews = await newsService.getAllHomeNews();
+        return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.NEWS_LIST, groupedNews);
+    } catch (error) {
+        console.error('getAllHomeNews Error:', error);
+        return response.error(res, resStatusCode.INTERNAL_SERVER_ERROR, resMessage.INTERNAL_SERVER_ERROR);
+    };
+};
+
 export const updateNewsById = async (req, res) => {
     const { id } = req.params;
     const { error } = idValidation.validate({ id });
     if (error) {
         return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
-    };
+    }
+    const uploadedImages = req.uploadedImages || [];
+    const mainImage = uploadedImages.find(file => file.field === 'mainImage');
+    req.body.mainImage = mainImage?.s3Url ?? req.body.mainImage;
+    const newsArray = req.body.news;
+    const newsWithImages = Array.isArray(newsArray)
+        ? newsArray.map((item, index) => {
+            const fieldName = `news[${index}][image]`;
+            const matchedImage = uploadedImages.find(file => file.field === fieldName);
+            return {
+                ...item,
+                image: matchedImage?.s3Url || item.image || ""
+            };
+        })
+        : [];
+
+    req.body.news = newsWithImages;
     try {
         const data = {
             id,
@@ -101,8 +132,9 @@ export const updateNewsById = async (req, res) => {
     } catch (error) {
         console.error('Error in updateNewsById:', error);
         return response.error(res, resStatusCode.INTERNAL_SERVER_ERROR, resMessage.INTERNAL_SERVER_ERROR, {});
-    };
+    }
 };
+
 
 export const deleteNewsById = async (req, res) => {
     const { id } = req.params;
