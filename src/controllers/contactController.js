@@ -1,6 +1,5 @@
 import {
     contactValidation,
-    // idValidation,
 } from "../models/contactModel.js";
 import response from "../utils/response.js";
 import { resStatusCode, resMessage } from "../utils/constants.js";
@@ -49,37 +48,3 @@ export const getAllContactUs = async (req, res) => {
         return response.error(res, resStatusCode.INTERNAL_SERVER_ERROR, resMessage.INTERNAL_SERVER_ERROR);
     };
 };
-
-// export const getTagById = async (req, res) => {
-//     const { id } = req.params;
-//     const { error } = idValidation.validate(req.body);
-//     if (error) {
-//         return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
-//     };
-//     try {
-//         const getTag = await tagsService.tagsExists({ _id: id });
-//         return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.TAGS_SINGLE, getTag);
-//     } catch (error) {
-//         console.error('Error in getTagById:', error);
-//         return response.error(res, resStatusCode.INTERNAL_SERVER_ERROR, resMessage.INTERNAL_SERVER_ERROR, {});
-//     };
-// };
-
-// export const updateTagById = async (req, res) => {
-//     const { id } = req.params;
-//     const { error } = idValidation.validate({ id });
-//     if (error) {
-//         return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
-//     };
-//     try {
-//         const data = {
-//             id,
-//             ...req.body,
-//         };
-//         await tagsService.updateTags(data);
-//         return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.TAGS_UPDATE, {});
-//     } catch (error) {
-//         console.error('Error in updateTagById:', error);
-//         return response.error(res, resStatusCode.INTERNAL_SERVER_ERROR, resMessage.INTERNAL_SERVER_ERROR, {});
-//     };
-// };

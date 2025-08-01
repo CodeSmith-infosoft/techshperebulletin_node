@@ -29,17 +29,4 @@ export class tagsService {
             return (error);
         };
     };
-
-    static async updateTags(data) {
-        try {
-            const updateTags = await contactModel.findByIdAndUpdate(
-                { _id: data.id },
-                { $set: data },
-                { new: false, runValidators: true }
-            );
-            return (updateTags);
-        } catch (error) {
-            return (error);
-        };
-    };
 };

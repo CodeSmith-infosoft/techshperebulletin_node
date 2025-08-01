@@ -11,8 +11,8 @@ const newsSchema = new Schema(
         news: [
             {
                 _id: false,
-                image: { type: String, required: false },
-                p: { type: String, required: false },
+                image: { type: String, },
+                p: { type: String, },
             },
         ],
         categoryId: { type: Types.ObjectId, ref: dbTableName.CATEGORYS },
@@ -33,16 +33,6 @@ const newsArrayValidation = Joi.object({
         'string.base': 'Paragraph must be a string',
     }),
 });
-
-const schema = Joi.object({
-    news: Joi.array()
-        .items(newsArrayValidation)
-        .optional()
-        .messages({
-            'array.base': 'News must be an array',
-        }),
-});
-
 
 export const newsValidation = Joi.object({
     title: Joi.string().trim().required().messages({

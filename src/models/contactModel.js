@@ -1,6 +1,6 @@
 import Joi from "joi";
 import mongoose, { model } from "mongoose";
-const { Schema, Types } = mongoose;
+const { Schema } = mongoose;
 import { dbTableName } from "../utils/constants.js"
 
 const contactSchema = new Schema(

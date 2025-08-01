@@ -250,7 +250,7 @@ export async function googleOAuthLogin(req, res) {
     };
 };
 
-export async function JoinNewsLetter(req, res) {
+export async function joinNewsLetter(req, res) {
     const { email } = req.body;
     const { error } = JoinNewsLetterValidation.validate({ email });
     if (error) {

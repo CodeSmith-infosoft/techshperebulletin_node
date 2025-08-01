@@ -105,7 +105,7 @@ export const createS3Uploader = ({ folderName, filePrefix = '', fieldType = 'sin
                                 ...localFile,
                             });
                         };
-                    }
+                    };
                 };
                 next();
             } catch (error) {
@@ -132,7 +132,6 @@ export const newsImages = createS3Uploader({
     ],
     fileSizeMB: 1,
 });
-
 
 export const blogImage = createS3Uploader({
     folderName: 'blog',

@@ -1,6 +1,4 @@
 import { blogModel } from "../models/blogModel.js";
-import response from "../utils/response.js";
-import { resStatusCode, resMessage } from "../utils/constants.js";
 
 export class blogService {
     static async blogExists(data) {
@@ -38,21 +36,8 @@ export class blogService {
         };
     };
 
-    // static async updateBlogById(data) {
-    //     try {
-    //         const updateBlog = await blogModel.findByIdAndUpdate(
-    //             { _id: data.id },
-    //             { $set: data },
-    //             { new: false, runValidators: true }
-    //         );
-    //         return (updateBlog);
-    //     } catch (error) {
-    //         return (error);
-    //     };
-    // };
     static async updateBlogById(data) {
         try {
-            console.log('update payload:', data);
             const { id, ...updateFields } = data;
 
             const updateNews = await blogModel.findByIdAndUpdate(
@@ -60,11 +45,10 @@ export class blogService {
                 { $set: updateFields },
                 { new: true, runValidators: true }
             );
-
-            return updateNews;
+            return (updateNews);
         } catch (error) {
             console.error('Update error:', error);
-            return error;
-        }
-    }
+            return (error);
+        };
+    };
 };

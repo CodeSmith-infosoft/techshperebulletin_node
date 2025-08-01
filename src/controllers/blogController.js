@@ -21,7 +21,6 @@ export const createBlog = async (req, res) => {
         const subscribedUsers = getAllUsers.filter(user => user.isSubscribed && user.isActive);
         const subscriberEmails = subscribedUsers.map(sub => sub.email);
 
-        console.log(subscriberEmails);
         // const shortDescription = mailDescription.split(" ").slice(0, 200).join(" ");
         // const subject = "📰 Just In: A New Blog from Techsphere Bulletin You Can’t Miss!";
 
@@ -41,7 +40,7 @@ export const createBlog = async (req, res) => {
 export const getAllBlog = async (req, res) => {
     try {
         const { page = 1, limit = 10 } = req.query;
-        const filter = req.user ? {isDelete : false} : { isActive: true, isDelete: false };
+        const filter = req.user ? { isDelete: false } : { isActive: true, isDelete: false };
         const pagination = {
             page: parseInt(page),
             limit: parseInt(limit),

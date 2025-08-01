@@ -10,7 +10,7 @@ import {
     changePassword,
     getGoogleOAuthUrl,
     googleOAuthLogin,
-    JoinNewsLetter,
+    joinNewsLetter,
 } from "../controllers/userController.js";
 import { validateAccessToken, authorizeRoles } from "../middleware/auth.js";
 
@@ -23,6 +23,6 @@ router.put("/deactiveUser/:id", validateAccessToken, authorizeRoles(0), deactive
 router.post("/changePassword", validateAccessToken, changePassword);
 router.get("/getGoogleOAuthUrl", getGoogleOAuthUrl);
 router.post("/googleOAuthLogin", googleOAuthLogin);
-router.post("/JoinNewsLetter", JoinNewsLetter);
+router.post("/joinNewsLetter", joinNewsLetter);
 
 export default router;

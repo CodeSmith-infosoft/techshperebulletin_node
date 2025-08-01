@@ -2,7 +2,6 @@ import { newsModel } from "../models/newsModel.js";
 
 export class newsService {
     static async createNews(data) {
-        console.log('data',data);
         try {
             const createNewNews = await newsModel.create({
                 ...data
@@ -29,7 +28,7 @@ export class newsService {
                 const sevenDaysAgo = new Date();
                 sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
                 matchStage.createdAt = { $gte: sevenDaysAgo };
-            }
+            };
             const basePipeline = [
                 { $match: matchStage },
                 {
@@ -53,7 +52,6 @@ export class newsService {
                 ...(categoryName ? [{ $match: { 'categoryId.name': categoryName } }] : []),
                 ...(tagName ? [{ $match: { 'tagId.name': tagName } }] : []),
             ];
-
             const countPipeline = [...basePipeline, { $count: 'total' }];
             const countResult = await newsModel.aggregate(countPipeline);
             const totalRecords = countResult[0]?.total || 0;
@@ -65,10 +63,9 @@ export class newsService {
                 { $limit: limit },
             ];
             const records = await newsModel.aggregate(paginatedPipeline);
-
             return { records, totalRecords };
         } catch (error) {
-            return error;
+            return (error);
         };
     };
 
@@ -107,15 +104,13 @@ export class newsService {
                     },
                 },
             ];
-
             const result = await newsModel.aggregate(pipeline);
-            return result;
+            return (result);
         } catch (error) {
             console.error('getNewsGroupedByCategory Error:', error);
-            throw error;
-        }
-    }
-
+            throw (error);
+        };
+    };
 
     static async newsExists(data) {
         try {
@@ -128,7 +123,6 @@ export class newsService {
 
     static async updateNews(data) {
         try {
-            console.log('update payload:', data);
             const { id, ...updateFields } = data;
 
             const updateNews = await newsModel.findByIdAndUpdate(
@@ -136,13 +130,10 @@ export class newsService {
                 { $set: updateFields },
                 { new: true, runValidators: true }
             );
-
-            return updateNews;
+            return (updateNews);
         } catch (error) {
             console.error('Update error:', error);
-            return error;
-        }
-    }
-
-
+            return (error);
+        };
+    };
 };

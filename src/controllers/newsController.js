@@ -12,27 +12,27 @@ export const createNews = async (req, res) => {
     const newsArray = req.body.news;
     const uploadedImages = req.uploadedImages || [];
     const newsWithImages = Array.isArray(newsArray)
-        ? newsArray.map((item, index) => {
-            const fieldName = `news[${index}][image]`;
-            const matchedImage = uploadedImages.find(file => file.field === fieldName);
-            return {
-                ...item,
-                image: matchedImage?.s3Url || item.image || ""
-            };
-        })
+        ? newsArray
+            .filter((item) => item && (item.p || item.image))
+            .map((item, index) => {
+                const fieldName = `news[${index}][image]`;
+                const matchedImage = uploadedImages.find(file => file.field === fieldName);
+                return {
+                    ...item,
+                    image: matchedImage?.s3Url || item.image,
+                };
+            })
         : [];
-        const { title, description, news, categoryId, tagId, isPromoted } = req.body;
-        const data = {
-            ...req.body,
-            mainImage: req.body.mainImage,
-            news: newsWithImages,
-        };
-        console.log('newsArray',data);
+    const { title, description, categoryId, tagId, isPromoted } = req.body;
+    const data = {
+        ...req.body,
+        mainImage: req.body.mainImage,
+        news: newsWithImages,
+    };
     const { error } = newsValidation.validate(data);
     if (error) {
         return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
     };
-    console.log('error', error);
     try {
         await newsService.createNews(data);
         return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.NEWS_ADD, {});
@@ -105,36 +105,58 @@ export const updateNewsById = async (req, res) => {
     const { error } = idValidation.validate({ id });
     if (error) {
         return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
-    }
-    const uploadedImages = req.uploadedImages || [];
-    const mainImage = uploadedImages.find(file => file.field === 'mainImage');
-    req.body.mainImage = mainImage?.s3Url ?? req.body.mainImage;
-    const newsArray = req.body.news;
-    const newsWithImages = Array.isArray(newsArray)
-        ? newsArray.map((item, index) => {
-            const fieldName = `news[${index}][image]`;
-            const matchedImage = uploadedImages.find(file => file.field === fieldName);
-            return {
-                ...item,
-                image: matchedImage?.s3Url || item.image || ""
-            };
-        })
-        : [];
-
-    req.body.news = newsWithImages;
+    };
     try {
+        const uploadedImages = req.uploadedImages || [];
+        const mainImage = uploadedImages.find(file => file.field === 'mainImage');
+        req.body.mainImage = mainImage?.s3Url ?? req.body.mainImage;
+        const formNewsBlocks = Array.isArray(req.body.news) ? req.body.news : [];
+        const extraNewsBlocks = {};
+        Object.keys(req.body).forEach((key) => {
+            const match = key.match(/^news\[(\d+)]\[(p|image)]$/);
+            if (match) {
+                const index = parseInt(match[1], 10);
+                const field = match[2];
+                if (!extraNewsBlocks[index]) extraNewsBlocks[index] = {};
+                extraNewsBlocks[index][field] = req.body[key];
+            };
+        });
+        Object.keys(extraNewsBlocks).forEach((idxStr) => {
+            const index = parseInt(idxStr, 10);
+            formNewsBlocks[index] = {
+                ...(formNewsBlocks[index] || {}),
+                ...extraNewsBlocks[index],
+            };
+        });
+        uploadedImages.forEach((file) => {
+            const match = file.field.match(/^news\[(\d+)]\[image]$/);
+            if (match) {
+                const index = parseInt(match[1], 10);
+                if (formNewsBlocks[index]?.image) {
+                    formNewsBlocks.push({
+                        image: file.s3Url,
+                    });
+                } else {
+                    formNewsBlocks[index] = {
+                        ...(formNewsBlocks[index] || {}),
+                        image: file.s3Url,
+                    };
+                };
+            };
+        });
+        const finalNewsArray = formNewsBlocks.filter(block => block && (block.image || block.p));
         const data = {
             id,
             ...req.body,
+            news: finalNewsArray,
         };
         await newsService.updateNews(data);
         return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.NEWS_UPDATE, {});
     } catch (error) {
         console.error('Error in updateNewsById:', error);
         return response.error(res, resStatusCode.INTERNAL_SERVER_ERROR, resMessage.INTERNAL_SERVER_ERROR, {});
-    }
+    };
 };
-
 
 export const deleteNewsById = async (req, res) => {
     const { id } = req.params;
