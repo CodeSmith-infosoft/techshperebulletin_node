@@ -29,6 +29,6 @@ app.use("/api", apiRouter);
 app.get('/sign-up', (req, res) => {
   res.send(`<h1>Walcom Tech News</h1>`);
 });
-app.listen(port, () => {
+app.listen(port, "0.0.0.0", () => {
   console.debug(`\x1b[32m✔ Server Started Successfully\x1b[0m \x1b[36m→ Now listening on Port: ${port}\x1b[0m`);
 });
