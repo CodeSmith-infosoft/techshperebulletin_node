@@ -32,7 +32,7 @@ export async function validateAccessToken(req, res, next) {
         });
         const authenticatedUser = await userModel.findById({ _id: decodedToken._id });
         if (!authenticatedUser) {
-            return response.error(res, resStatusCode.UNAUTHORISED, resMessage.UNAUTHORISED, {});
+            return response.error(res, resStatusCode.INVALID_TOKEN, resMessage.UNAUTHORISED, {});
         };
         req.user = authenticatedUser;
         console.debug("\x1b[32m[AccessToken] Token Verified Successfully. Admin ID:\x1b[36m", req.user.id, "\x1b[0m");
@@ -40,11 +40,11 @@ export async function validateAccessToken(req, res, next) {
     } catch (error) {
         console.error("JWT Verification Error:", error.message);
         if (error?.name === "TokenExpiredError") {
-            return response.error(res, resStatusCode.UNAUTHORISED, resMessage.TOKEN_EXPIRED, {});
+            return response.error(res, resStatusCode.INVALID_TOKEN, resMessage.TOKEN_EXPIRED, {});
         } else if (error?.name === "JsonWebTokenError") {
-            return response.error(res, resStatusCode.UNAUTHORISED, resMessage.TOKEN_INVALID, {});
+            return response.error(res, resStatusCode.INVALID_TOKEN, resMessage.TOKEN_INVALID, {});
         } else {
-            return response.error(res, resStatusCode.UNAUTHORISED, resMessage.TOKEN_INVALID, {});
+            return response.error(res, resStatusCode.INVALID_TOKEN, resMessage.TOKEN_INVALID, {});
         };
     };
 };

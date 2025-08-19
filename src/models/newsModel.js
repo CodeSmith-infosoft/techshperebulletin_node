@@ -26,13 +26,14 @@ const newsSchema = new Schema(
 export const newsModel = model(dbTableName.NEWS, newsSchema);
 
 const newsArrayValidation = Joi.object({
-    image: Joi.string().optional().messages({
+    image: Joi.string().allow(null, '').optional().messages({
         'string.base': 'News image must be a string',
     }),
-    p: Joi.string().optional().messages({
+    p: Joi.string().allow(null, '').optional().messages({
         'string.base': 'Paragraph must be a string',
     }),
 });
+
 
 export const newsValidation = Joi.object({
     title: Joi.string().trim().required().messages({
