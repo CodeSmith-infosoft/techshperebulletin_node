@@ -25,6 +25,7 @@ export const createNews = async (req, res) => {
             })
         : [];
     const { title, description, categoryId, tagId, isPromoted } = req.body;
+    console.log("news data check12", newsWithImages)
 
     const data = {
         ...req.body,
