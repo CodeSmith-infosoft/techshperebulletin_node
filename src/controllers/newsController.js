@@ -5,6 +5,7 @@ import {
 import response from "../utils/response.js";
 import { resStatusCode, resMessage } from "../utils/constants.js";
 import { newsService } from "../services/newsService.js";
+// import { analyticsService } from './../services/analyticsService.js';
 
 export const createNews = async (req, res) => {
     const mainImage = req.uploadedImages?.find(file => file.field === 'mainImage');
@@ -24,11 +25,13 @@ export const createNews = async (req, res) => {
             })
         : [];
     const { title, description, categoryId, tagId, isPromoted } = req.body;
+
     const data = {
         ...req.body,
         mainImage: req.body.mainImage,
         news: newsWithImages,
     };
+    console.log("news data check", data)
     const { error } = newsValidation.validate(data);
     if (error) {
         return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
@@ -176,3 +179,14 @@ export const deleteNewsById = async (req, res) => {
         return response.error(res, resStatusCode.INTERNAL_SERVER_ERROR, resMessage.INTERNAL_SERVER_ERROR, {});
     };
 };
+
+// export const getTopNewsByAnalytics = async (req, res) => {
+//     try {
+//         const newsIds = await analyticsService.fetchTopNewsViews();
+//         const topNews = await newsService.getTopNewsByAnalytics(newsIds);
+//         return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.ACTION_COMPLETE, topNews);
+//     } catch (error) {
+//         console.error('getAllHomeNews Error:', error);   
+//         return response.error(res, resStatusCode.INTERNAL_SERVER_ERROR, resMessage.INTERNAL_SERVER_ERROR);
+//     };
+// };
