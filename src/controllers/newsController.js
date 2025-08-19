@@ -25,14 +25,12 @@ export const createNews = async (req, res) => {
             })
         : [];
     const { title, description, categoryId, tagId, isPromoted } = req.body;
-    console.log("news data check12", newsWithImages)
 
     const data = {
         ...req.body,
         mainImage: req.body.mainImage,
         news: newsWithImages,
     };
-    console.log("news data check", data)
     const { error } = newsValidation.validate(data);
     if (error) {
         return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
@@ -48,7 +46,7 @@ export const createNews = async (req, res) => {
 
 export const getAllNews = async (req, res) => {
     try {
-        console.log('test get all news')
+        console.log('test21212121212121212121212121212')
         const { categoryName, latestNews, tagName, isPromoted, page = 1, limit = 10 } = req.query;
         const filter = { isDelete: false };
         if (!req.user) {
@@ -97,8 +95,6 @@ export const getNewsById = async (req, res) => {
 
 export const getAllHomeNews = async (req, res) => {
     try {
-        console.log('test get all news')
-
         const groupedNews = await newsService.getAllHomeNews();
         return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.NEWS_LIST, groupedNews);
     } catch (error) {
