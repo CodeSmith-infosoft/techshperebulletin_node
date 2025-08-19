@@ -46,7 +46,6 @@ export const createNews = async (req, res) => {
 
 export const getAllNews = async (req, res) => {
     try {
-        console.log('yash test')
         const { categoryName, latestNews, tagName, isPromoted, page = 1, limit = 10 } = req.query;
         const filter = { isDelete: false };
         if (!req.user) {
