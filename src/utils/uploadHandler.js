@@ -92,6 +92,7 @@ export const createS3Uploader = ({ folderName, filePrefix = '', fieldType = 'sin
 
                             req.uploadedImages.push({
                                 field: key,
+                                index: key.split('[')?.[1]?.[0],
                                 fileName: filename,
                                 originalName: file.originalname,
                                 s3Url,
