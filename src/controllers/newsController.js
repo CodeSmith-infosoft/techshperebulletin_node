@@ -16,14 +16,15 @@ export const createNews = async (req, res) => {
     const matchedImage = uploadedImages.filter(file => file.field !== "mainImage")
     const i = newsArray.length > matchedImage.length ? newsArray.length : matchedImage.length;
     let j = 0;
+    console.log("matchedImage",matchedImage)
     while (j < i) {
         let obj = {}
         if (newsArray?.[j]?.p) {
             obj.p = newsArray?.[j]?.p
         }
         let findImage = matchedImage.find(d => d.index == j)
+        console.log("findImage",findImage)
         if (findImage) {
-            console.log("findImage",findImage.s3Url)
             obj.image = findImage?.s3Url
         }
         newsWithImages.push(obj)
