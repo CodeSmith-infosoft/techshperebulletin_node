@@ -8,6 +8,7 @@ import { newsService } from "../services/newsService.js";
 // import { analyticsService } from './../services/analyticsService.js';
 
 export const createNews = async (req, res) => {
+    console.log("This is req",req)
     const mainImage = req.uploadedImages?.find(file => file.field === 'mainImage');
     req.body.mainImage = mainImage?.s3Url ?? "";
     const newsArray = req.body.news;
