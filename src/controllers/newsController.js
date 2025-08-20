@@ -16,21 +16,18 @@ export const createNews = async (req, res) => {
     const matchedImage = uploadedImages.filter(file => file.field !== "mainImage")
     const i = newsArray.length > matchedImage.length ? newsArray.length : matchedImage.length;
     let j = 0;
-    console.log("matchedImage",matchedImage)
     while (j < i) {
         let obj = {}
         if (newsArray?.[j]?.p) {
             obj.p = newsArray?.[j]?.p
         }
         let findImage = matchedImage.find(d => d.index == j)
-        console.log("findImage",findImage)
         if (findImage) {
             obj.image = findImage?.s3Url
         }
         newsWithImages.push(obj)
        j++ 
     };
-    console.log('New newsWithImages Arr',newsWithImages)
     const { title, description, categoryId, tagId, isPromoted } = req.body;
     const data = {
         ...req.body,
@@ -41,7 +38,6 @@ export const createNews = async (req, res) => {
     if (error) {
         return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
     };
-    console.log('DB data', data)
     try {
       const dbSave =  await newsService.createNews(data);
         return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.NEWS_ADD, dbSave);

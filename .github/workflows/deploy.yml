@@ -18,8 +18,8 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Install dependencies
-        run: npm install
+      # - name: Install dependencies
+      #   run: npm install
 
       - name: Deploy to EC2
         uses: appleboy/scp-action@v0.1.7
