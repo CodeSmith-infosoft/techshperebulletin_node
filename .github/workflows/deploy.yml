@@ -38,6 +38,8 @@ jobs:
           key: ${{ secrets.KEY }}
           script: |
             cd ${{ secrets.TARGET }}
+            git fetch --all
+            git reset --hard origin/main
             echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" > .env
             echo "AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}" >> .env
             echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
@@ -54,5 +56,5 @@ jobs:
             echo "TARGET=${{ secrets.TARGET }}" >> .env
             echo "NODE_ENV=production" >> .env
             npm install
-            pm2 restart all || pm2 start server.js --name "techshperebulletin_node"
+            pm2 restart techshperebulletin_node || pm2 start server.js --name "techshperebulletin_node"
             pm2 save
