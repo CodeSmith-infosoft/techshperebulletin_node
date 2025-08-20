@@ -12,20 +12,25 @@ export const createNews = async (req, res) => {
     req.body.mainImage = mainImage?.s3Url ?? "";
     const newsArray = req.body.news;
     const uploadedImages = req.uploadedImages || [];
-    const newsWithImages = Array.isArray(newsArray)
-        ? newsArray
-            .filter((item) => item && (item.p || item.image))
-            .map((item, index) => {
-                const fieldName = `news[${index}][image]`;
-                const matchedImage = uploadedImages.find(file => file.field === fieldName);
-                return {
-                    ...item,
-                    image: matchedImage?.s3Url || item.image,
-                };
-            })
-        : [];
-    const { title, description, categoryId, tagId, isPromoted } = req.body;
+    let newsWithImages = [];
+    const matchedImage = uploadedImages.filter(file => file.field !== "mainImage")
+    const i = newsArray.length > matchedImage.length ? newsArray.length : matchedImage.length;
+    let j = 0;
 
+    while (j < i) {
+        let obj = {}
+        if (newsArray?.[j]?.p) {
+            obj.p = newsArray?.[j]?.p
+        }
+        let findImage = matchedImage.find(d => d.index == j)
+        if (findImage) {
+            obj.image = findImage.s3Url
+        }
+        newsWithImages.push(obj)
+       j++ 
+    };
+    
+    const { title, description, categoryId, tagId, isPromoted } = req.body;
     const data = {
         ...req.body,
         mainImage: req.body.mainImage,
@@ -46,7 +51,6 @@ export const createNews = async (req, res) => {
 
 export const getAllNews = async (req, res) => {
     try {
-        console.log('test21212121212121212121212121212')
         const { categoryName, latestNews, tagName, isPromoted, page = 1, limit = 10 } = req.query;
         const filter = { isDelete: false };
         if (!req.user) {
