@@ -8,7 +8,6 @@ import { newsService } from "../services/newsService.js";
 // import { analyticsService } from './../services/analyticsService.js';
 
 export const createNews = async (req, res) => {
-    console.log("This is req",req)
     const mainImage = req.uploadedImages?.find(file => file.field === 'mainImage');
     req.body.mainImage = mainImage?.s3Url ?? "";
     const newsArray = req.body.news;
@@ -24,11 +23,13 @@ export const createNews = async (req, res) => {
         }
         let findImage = matchedImage.find(d => d.index == j)
         if (findImage) {
-            obj.image = findImage.s3Url
+            console.log("findImage",findImage.s3Url)
+            obj.image = findImage?.s3Url
         }
         newsWithImages.push(obj)
        j++ 
     };
+    console.log('New newsWithImages Arr',newsWithImages)
     const { title, description, categoryId, tagId, isPromoted } = req.body;
     const data = {
         ...req.body,
@@ -39,9 +40,10 @@ export const createNews = async (req, res) => {
     if (error) {
         return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
     };
+    console.log('DB data', data)
     try {
-        await newsService.createNews(data);
-        return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.NEWS_ADD, {});
+      const dbSave =  await newsService.createNews(data);
+        return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.NEWS_ADD, dbSave);
     } catch (err) {
         console.error("createNews Error:", err);
         return response.error(res, resStatusCode.INTERNAL_SERVER_ERROR, resMessage.INTERNAL_SERVER_ERROR);
