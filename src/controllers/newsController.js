@@ -16,7 +16,6 @@ export const createNews = async (req, res) => {
     const matchedImage = uploadedImages.filter(file => file.field !== "mainImage")
     const i = newsArray.length > matchedImage.length ? newsArray.length : matchedImage.length;
     let j = 0;
-
     while (j < i) {
         let obj = {}
         if (newsArray?.[j]?.p) {
@@ -29,7 +28,6 @@ export const createNews = async (req, res) => {
         newsWithImages.push(obj)
        j++ 
     };
-    
     const { title, description, categoryId, tagId, isPromoted } = req.body;
     const data = {
         ...req.body,
