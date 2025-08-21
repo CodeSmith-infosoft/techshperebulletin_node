@@ -136,4 +136,13 @@ export class newsService {
             return (error);
         };
     };
+    static async getTopNewsByAnalytics(data) {
+        try {
+            const topNews = await newsModel.find({ _id: { $in: data } }).populate('categoryId', 'name').populate('tagId', 'name');
+            return (topNews);
+        } catch (error) {
+            console.error('Update error:', error);
+            return (error);
+        };
+    };
 };
