@@ -6,6 +6,7 @@ import tags from "./tagsRoutes.js";
 import news from "./newsRoutes.js";
 import blog from "./blogRoutes.js";
 import contact from "./contactRoutes.js";
+import analytics from "./analyticsRoutes.js";
 
 const router = Router();
 
@@ -15,5 +16,6 @@ router.use("/tags", tags);
 router.use("/news", news);
 router.use("/blog", blog);
 router.use("/contact", contact);
+router.use("/analytics", analytics);
 
 export default router;

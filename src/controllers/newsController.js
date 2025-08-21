@@ -20,6 +20,7 @@ export const createNews = async (req, res) => {
         let obj = {}
         if (newsArray?.[j]?.p) {
             obj.p = newsArray?.[j]?.p
+            obj.subTitle = newsArray?.[j]?.subTitle
         }
         let findImage = matchedImage.find(d => d.index == j)
         if (findImage) {
@@ -118,7 +119,9 @@ export const updateNewsById = async (req, res) => {
         const formNewsBlocks = Array.isArray(req.body.news) ? req.body.news : [];
         const extraNewsBlocks = {};
         Object.keys(req.body).forEach((key) => {
-            const match = key.match(/^news\[(\d+)]\[(p|image)]$/);
+            // const match = key.match(/^news\[(\d+)]\[(p|image)]$/);
+            const match = key.match(/^news\[(\d+)]\[(p|image|subTitle)]$/);
+
             if (match) {
                 const index = parseInt(match[1], 10);
                 const field = match[2];
@@ -134,7 +137,9 @@ export const updateNewsById = async (req, res) => {
             };
         });
         uploadedImages.forEach((file) => {
-            const match = file.field.match(/^news\[(\d+)]\[image]$/);
+            // const match = file.field.match(/^news\[(\d+)]\[image]$/);
+            const match = key.match(/^news\[(\d+)]\[(p|image|subTitle)]$/);
+
             if (match) {
                 const index = parseInt(match[1], 10);
                 if (formNewsBlocks[index]?.image) {
@@ -149,7 +154,7 @@ export const updateNewsById = async (req, res) => {
                 };
             };
         });
-        const finalNewsArray = formNewsBlocks.filter(block => block && (block.image || block.p));
+        const finalNewsArray = formNewsBlocks.filter(block => block && (block.image || block.p || block.subTitle));
         const data = {
             id,
             ...req.body,

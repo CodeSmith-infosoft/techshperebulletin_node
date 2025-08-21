@@ -7,6 +7,7 @@ import {
     updateNewsById,
     deleteNewsById,
     getAllHomeNews,
+    // getTopNewsByAnalytics,
 } from "../controllers/newsController.js";
 import { validateAccessToken, authorizeRoles } from "../middleware/auth.js";
 import { newsImages } from "../utils/uploadHandler.js";
@@ -18,5 +19,6 @@ router.get("/getAllHomeNews", getAllHomeNews);
 router.get("/getNews/:id", getNewsById);
 router.put("/updateNews/:id", validateAccessToken, authorizeRoles(0), newsImages, updateNewsById);
 router.delete("/deleteNews/:id", validateAccessToken, authorizeRoles(0), deleteNewsById);
+// router.get("/getTopNewsByAnalytics", validateAccessToken, authorizeRoles(0), getTopNewsByAnalytics);
 
 export default router;

@@ -13,6 +13,7 @@ const newsSchema = new Schema(
                 _id: false,
                 image: { type: String, },
                 p: { type: String, },
+                subTitle: { type: String, },
             },
         ],
         categoryId: { type: Types.ObjectId, ref: dbTableName.CATEGORYS },
@@ -31,6 +32,9 @@ const newsArrayValidation = Joi.object({
     }),
     p: Joi.string().allow(null, '').optional().messages({
         'string.base': 'Paragraph must be a string',
+    }),
+     subTitle: Joi.string().allow(null, '').optional().messages({
+        'string.base': 'subTitle must be a string',
     }),
 });
 
