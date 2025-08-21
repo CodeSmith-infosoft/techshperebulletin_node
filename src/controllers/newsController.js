@@ -8,39 +8,34 @@ import { newsService } from "../services/newsService.js";
 // import { analyticsService } from './../services/analyticsService.js';
 
 export const createNews = async (req, res) => {
-    const mainImage = req.uploadedImages?.find(file => file.field === 'mainImage');
-    req.body.mainImage = mainImage?.s3Url ?? "";
-    const newsArray = req.body.news;
-    const uploadedImages = req.uploadedImages || [];
-    let newsWithImages = [];
-    const matchedImage = uploadedImages.filter(file => file.field !== "mainImage")
-    const i = newsArray.length > matchedImage.length ? newsArray.length : matchedImage.length;
-    let j = 0;
-    while (j < i) {
-        let obj = {}
-        if (newsArray?.[j]?.p) {
-            obj.p = newsArray?.[j]?.p
-            obj.subTitle = newsArray?.[j]?.subTitle
-        }
-        let findImage = matchedImage.find(d => d.index == j)
-        if (findImage) {
-            obj.image = findImage?.s3Url
-        }
-        newsWithImages.push(obj)
-       j++ 
-    };
-    const { title, description, categoryId, tagId, isPromoted } = req.body;
-    const data = {
-        ...req.body,
-        mainImage: req.body.mainImage,
-        news: newsWithImages,
-    };
-    const { error } = newsValidation.validate(data);
-    if (error) {
-        return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
-    };
     try {
-      const dbSave =  await newsService.createNews(data);
+        const mainImage = req.uploadedImages?.find(file => file.field === 'mainImage');
+        req.body.mainImage = mainImage?.s3Url ?? "";
+        const uploadedImages = req.uploadedImages || [];
+        const matchedImage = uploadedImages.filter(file => file.field !== "mainImage");
+
+        let newsArray = req.body.news ?? [];
+        matchedImage.forEach(img => {
+            const idx =  img.index; // Number(img.index) ??
+            if (!newsArray[idx]) {
+                newsArray[idx] = {}; 
+            };
+            newsArray[idx].image = img.s3Url; 
+        });
+        const newsWithImages = newsArray.map(item => ({ ...item }));
+
+        const { title, description, categoryId, tagId, isPromoted } = req.body;
+        const data = {
+            ...req.body,
+            mainImage: req.body.mainImage,
+            news: newsWithImages,
+            isPromoted: isPromoted ?? false
+        };
+        const { error } = newsValidation.validate(data);
+        if (error) {
+            return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
+        };
+        const dbSave = await newsService.createNews(data);
         return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.NEWS_ADD, dbSave);
     } catch (err) {
         console.error("createNews Error:", err);
@@ -114,56 +109,40 @@ export const updateNewsById = async (req, res) => {
     };
     try {
         const uploadedImages = req.uploadedImages || [];
-        const mainImage = uploadedImages.find(file => file.field === 'mainImage');
+        const mainImage = uploadedImages.find(file => file.field === "mainImage");
         req.body.mainImage = mainImage?.s3Url ?? req.body.mainImage;
-        const formNewsBlocks = Array.isArray(req.body.news) ? req.body.news : [];
-        const extraNewsBlocks = {};
-        Object.keys(req.body).forEach((key) => {
-            // const match = key.match(/^news\[(\d+)]\[(p|image)]$/);
-            const match = key.match(/^news\[(\d+)]\[(p|image|subTitle)]$/);
+        let newsArray = req.body.news ?? [];
+        const matchedImage = uploadedImages.filter(file => file.field !== "mainImage");
+        const newsWithImages = newsArray.map((item, idx) => {
+            let finalBlock = { ...item };
+            const uploadedImg = matchedImage.find(img => img.index == idx);
+            if (uploadedImg) {
+                finalBlock.image = uploadedImg.s3Url;
+            };
+            return finalBlock;
+        });
 
-            if (match) {
-                const index = parseInt(match[1], 10);
-                const field = match[2];
-                if (!extraNewsBlocks[index]) extraNewsBlocks[index] = {};
-                extraNewsBlocks[index][field] = req.body[key];
+        matchedImage.forEach(img => {
+            const idx = Number(img.index);
+            if (!newsWithImages[idx]) {
+                newsWithImages[idx] = { image: img.s3Url };
             };
         });
-        Object.keys(extraNewsBlocks).forEach((idxStr) => {
-            const index = parseInt(idxStr, 10);
-            formNewsBlocks[index] = {
-                ...(formNewsBlocks[index] || {}),
-                ...extraNewsBlocks[index],
-            };
-        });
-        uploadedImages.forEach((file) => {
-            // const match = file.field.match(/^news\[(\d+)]\[image]$/);
-            const match = key.match(/^news\[(\d+)]\[(p|image|subTitle)]$/);
 
-            if (match) {
-                const index = parseInt(match[1], 10);
-                if (formNewsBlocks[index]?.image) {
-                    formNewsBlocks.push({
-                        image: file.s3Url,
-                    });
-                } else {
-                    formNewsBlocks[index] = {
-                        ...(formNewsBlocks[index] || {}),
-                        image: file.s3Url,
-                    };
-                };
-            };
-        });
-        const finalNewsArray = formNewsBlocks.filter(block => block && (block.image || block.p || block.subTitle));
+        const finalNewsArray = newsWithImages.filter(
+            block => block && (block.image || block.p || block.subTitle)
+        );
         const data = {
             id,
             ...req.body,
+            mainImage: req.body.mainImage,
             news: finalNewsArray,
+            isPromoted: req.body.isPromoted ?? false
         };
         await newsService.updateNews(data);
         return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.NEWS_UPDATE, {});
-    } catch (error) {
-        console.error('Error in updateNewsById:', error);
+    } catch (err) {
+        console.error("Error in updateNewsById:", err);
         return response.error(res, resStatusCode.INTERNAL_SERVER_ERROR, resMessage.INTERNAL_SERVER_ERROR, {});
     };
 };
