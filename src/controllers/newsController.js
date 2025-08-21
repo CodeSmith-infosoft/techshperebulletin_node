@@ -24,7 +24,7 @@ export const createNews = async (req, res) => {
         }
         let findImage = matchedImage.find(d => d.index == j)
         if (findImage) {
-            obj.image = findImage.s3Url
+            obj.image = findImage?.s3Url
         }
         newsWithImages.push(obj)
        j++ 
@@ -40,8 +40,8 @@ export const createNews = async (req, res) => {
         return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
     };
     try {
-        await newsService.createNews(data);
-        return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.NEWS_ADD, {});
+      const dbSave =  await newsService.createNews(data);
+        return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.NEWS_ADD, dbSave);
     } catch (err) {
         console.error("createNews Error:", err);
         return response.error(res, resStatusCode.INTERNAL_SERVER_ERROR, resMessage.INTERNAL_SERVER_ERROR);
