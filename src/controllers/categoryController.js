@@ -8,7 +8,8 @@ import { categoryService } from "../services/categoryService.js";
 
 export const createCategory = async (req, res) => {
     const { name, description } = req.body;
-    const { error } = categoryValidation.validate(req.body);
+        name = name.trim();
+    const { error } = categoryValidation.validate({ name, description });
     if (error) {
         return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
     };

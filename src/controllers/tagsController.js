@@ -8,6 +8,7 @@ import { tagsService } from "../services/tagsService.js";
 
 export const createTag = async (req, res) => {
     const { name, categoryId } = req.body;
+    name = name.trim();
     const { error } = tagsValidation.validate(req.body);
     if (error) {
         return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
