@@ -7,7 +7,7 @@ import { resStatusCode, resMessage } from "../utils/constants.js";
 import { tagsService } from "../services/tagsService.js";
 
 export const createTag = async (req, res) => {
-    const { name, categoryId } = req.body;
+    let { name, categoryId } = req.body;
     name = name.trim();
     const { error } = tagsValidation.validate(req.body);
     if (error) {
