@@ -52,4 +52,12 @@ export class tagsService {
             return (error);
         };
     };
+    static async getTagsByCategoryId(categoryId) {
+    try {
+        const tags = await tagsModel.find({ categoryId, isActive: true });
+        return tags;
+    } catch (error) {
+        return error;
+    }
+}
 };

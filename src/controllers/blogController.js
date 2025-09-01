@@ -6,6 +6,7 @@ import response from "../utils/response.js";
 import { resStatusCode, resMessage } from "../utils/constants.js";
 import { blogService } from "../services/blogService.js";
 import { userService } from "../services/userService.js";
+import sendMail from "../../config/mailer/index.js";
 
 export const createBlog = async (req, res) => {
     const image = req.uploadedImages.find(file => file.field === 'image');
@@ -16,19 +17,43 @@ export const createBlog = async (req, res) => {
         return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
     };
     try {
-        await blogService.createBlog(req.body);
-        const getAllUsers = await userService.getUsers();
-        const subscribedUsers = getAllUsers.filter(user => user.isSubscribed && user.isActive);
-        const subscriberEmails = subscribedUsers.map(sub => sub.email);
+        const saveBlog = await blogService.createBlog(req.body);
+        const users = await userService.getUsers();
+        const subscribedUsers = users.filter(u => u.isSubscribed && u.isActive);
+
+        const shortDescription = mailDescription.split(" ").slice(0, 200).join(" ");
+        const subject = "📰 Just In: A New Blog from Techsphere Bulletin You Can’t Miss!";
+        const formattedDate = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+
+        await Promise.all(
+            subscribedUsers.map(user =>
+                sendMail("blog", subject, user?.email, {
+                    title,
+                    createdDate: formattedDate,
+                    heroImage: req.body.image,
+                    description: shortDescription,
+                    blogURL: `https://techshperebulletin.com/blog/${saveBlog?._id}`
+                })
+            )
+        );
+
+        // const getAllUsers = await userService.getUsers();
+        // console.log('getAllUsers', getAllUsers)
+        // const subscribedUsers = getAllUsers.filter(user => user.isSubscribed && user.isActive);
+        // console.log('subscribedUsers', subscribedUsers)
+        // const subscriberEmails = subscribedUsers.map(sub => sub.email);
 
         // const shortDescription = mailDescription.split(" ").slice(0, 200).join(" ");
         // const subject = "📰 Just In: A New Blog from Techsphere Bulletin You Can’t Miss!";
-
-        // sendMail("blog", subject, subscriberEmails, {
+        // const date = new Date();
+        // const options = { day: '2-digit', month: 'long', year: 'numeric' };
+        // const formattedDate = date.toLocaleDateString('en-GB', options);
+        // sendMail("blog", subject, subscriberEmails.join(','), {
         //     title: title,
+        //     createdDate: formattedDate,
         //     heroImage: req.body.image,
         //     description: shortDescription,
-        //     base_URL: process.env.BASE_URL,
+        //     blogURL: `https://techshperebulletin.com/blog/${saveBlog?._id}`,
         // });
         return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.BLOG_ADD, {});
     } catch (err) {

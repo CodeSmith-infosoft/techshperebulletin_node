@@ -4,99 +4,97 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Latest Blog Update</title>
+  <title>Latest News Update</title>
 </head>
 
-<body style="margin:0; padding:0; background-color:#f3f4f6; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%;">
+<body
+  style="margin:0; padding:0; background-color:#f3f4f6; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; font-family:Arial,Helvetica,sans-serif;">
 
-  <!-- Hidden preview text -->
+  <!-- Preview Text -->
   <div style="display:none; font-size:1px; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden;">
-    Discover practical tips to write engaging blog posts — headlines, structure, visuals &more.</div>
+    Stay updated with the latest news headlines and trending topics.
+  </div>
 
-  <!-- Outer table -->
+  <!-- Outer Container -->
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
     style="background-color:#f3f4f6; width:100%;">
     <tr>
       <td align="center" style="padding:28px 12px;">
 
-        <!-- Card / Container -->
+        <!-- Main Card -->
         <table role="presentation" width="620" cellpadding="0" cellspacing="0" border="0"
-          style="width:620px; max-width:100%; background:#ffffff; border-collapse:collapse; border-radius:12px; overflow:hidden;">
+          style="width:620px; max-width:100%; background:#ffffff; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;">
 
-          <!-- Top bar with logo -->
+          <!-- Header -->
           <tr>
             <td style="padding:18px 20px; background:#e7e7e7;">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td align="left" style="vertical-align:middle;">
-                    <a href="https://techshperebulletin.com" style="text-decoration:none; display:inline-block;">
-                      <img src="https://techshperebulletin.com/logo.png" alt="Site Logo" width="140"
+                  <td align="left">
+                    <a href="https://techshperebulletin.com" style="text-decoration:none;">
+                      <img src="https://techshperebulletin.com/logo.png" alt="Logo" width="140"
                         style="display:block; max-width:140px; height:auto; border:0;" />
                     </a>
                   </td>
-                  <td align="right" style="vertical-align:middle;">
+                  <td align="right" style="font-size:13px; color:#0b1220;">
                     <a href="https://techshperebulletin.com"
-                      style="text-decoration:none; color:#0b1220; font-weight:bold;">Visit
-                      site →</a>
+                      style="text-decoration:none; color:#0b1220; font-weight:bold;">Visit site →</a>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
 
-          <!-- Hero / Title -->
+          <!-- News Title -->
           <tr>
-            <td style="padding:30px 22px 0px 22px;">
-              <h1
-                style="margin:0; font-family:Arial,Helvetica,sans-serif; font-size:22px; line-height:28px; color:#0b1220; font-weight:700;">
+            <td style="padding:22px 22px 0px 22px;">
+              <h1 style="margin:0; font-size:22px; line-height:30px; color:#0b1220; font-weight:700;">
                 <%= data.title %>
               </h1>
             </td>
           </tr>
 
-          <!-- Author + Date -->
+          <!-- Meta Info -->
           <tr>
-            <td style="padding:10px 22px 12px 22px; text-align:right;">
-              <p style="margin:0; font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#6b7280;">
-                • <%= data.createdDate %>
-              </p>
-            </td>
-          </tr>
-
-          <!-- Hero Image -->
-          <tr>
-            <td style="padding:0 22px 16px 22px;">
-              <img src="<%= data.heroImage %>" alt="Blog Tips" width="576"
-                style="display:block; width:100%; max-width:576px; height:auto; border:0; border-radius:10px;" />
-            </td>
-          </tr>
-
-          <!-- Excerpt with left accent -->
-          <tr>
-            <td style="padding:12px 22px 6px 22px;">
+            <td style="padding:10px 22px 14px 22px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td width="6" style="border-radius:4px;">&nbsp;</td>
-                  <td style="font-family:Arial,Helvetica,sans-serif; font-size:15px; color:#374151; line-height:22px;">
-                    <%= data.description %>
+                  <td align="left" style="font-size:13px; color:#374151;">
+                    <span
+                      style="background:#f1f3f5; padding:4px 12px; border-radius:16px; margin-right:6px;"><%= data.categoryName %></span>
+                    <span style="background:#f1f3f5; padding:4px 12px; border-radius:16px;"><%= data.tagName %></span>
+                  </td>
+                  <td align="right" style="font-size:12px; color:#6b7280;">
+                    • <%= data.createdDate %>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
 
-          <!-- CTA Button centered -->
+          <!-- Image -->
           <tr>
-            <td align="center" style="padding:35px 22px 35px 22px;">
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td align="center" bgcolor="#0d6efd" style="border-radius:8px;">
-                    <a href="<%= data.blogURL %>" target="_blank"
-                      style="display:inline-block; padding:12px 22px; font-family:Arial,Helvetica,sans-serif; font-size:15px; color:#ffffff; text-decoration:none; font-weight:600;">Read
-                      the full article</a>
-                  </td>
-                </tr>
-              </table>
+            <td style="padding:0 22px 18px 22px;">
+              <img src="<%= data.heroImage %>"
+                alt="News Image" width="576"
+                style="display:block; width:100%; max-width:576px; height:auto; border-radius:12px;" />
+            </td>
+          </tr>
+
+          <!-- Description -->
+          <tr>
+            <td style="padding:0 22px 12px 22px; font-size:15px; color:#374151; line-height:24px;">
+              <%= data.description %>
+            </td>
+          </tr>
+
+          <!-- CTA Button -->
+          <tr>
+            <td align="center" style="padding:20px;">
+              <a href="<%= data.newsURL %>" target="_blank"
+                style="background:#0d6efd; color:#ffffff; text-decoration:none; padding:14px 30px; font-size:16px; font-weight:bold; border-radius:30px; display:inline-block;">
+                Read Full News
+              </a>
             </td>
           </tr>
 
@@ -107,7 +105,7 @@
             </td>
           </tr>
 
-          <!-- Footer: Social + links -->
+          <!-- Footer -->
           <tr>
             <td style="padding:16px 22px 8px 22px; text-align:center;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">

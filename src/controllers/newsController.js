@@ -6,6 +6,10 @@ import response from "../utils/response.js";
 import { resStatusCode, resMessage } from "../utils/constants.js";
 import { newsService } from "../services/newsService.js";
 // import { analyticsService } from './../services/analyticsService.js';
+import { userService } from "../services/userService.js";
+import sendMail from "../../config/mailer/index.js";
+import { categoryService } from "../services/categoryService.js";
+import { tagsService } from "../services/tagsService.js";
 
 export const createNews = async (req, res) => {
     try {
@@ -16,11 +20,11 @@ export const createNews = async (req, res) => {
 
         let newsArray = req.body.news ?? [];
         matchedImage.forEach(img => {
-            const idx =  img.index; // Number(img.index) ??
+            const idx = img.index; // Number(img.index) ??
             if (!newsArray[idx]) {
-                newsArray[idx] = {}; 
+                newsArray[idx] = {};
             };
-            newsArray[idx].image = img.s3Url; 
+            newsArray[idx].image = img.s3Url;
         });
         const newsWithImages = newsArray.map(item => ({ ...item }));
 
@@ -35,8 +39,32 @@ export const createNews = async (req, res) => {
         if (error) {
             return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
         };
-        const dbSave = await newsService.createNews(data);
-        return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.NEWS_ADD, dbSave);
+        const newsSave = await newsService.createNews(data);
+
+        const users = await userService.getUsers();
+        const subscribedUsers = users.filter(u => u.isSubscribed && u.isActive);
+
+        const categoryData = await categoryService.categoryExists({ _id: categoryId });
+        const tagData = await tagsService.tagsExists({ _id: tagId });
+
+        const shortDescription = description.split(" ").slice(0, 200).join(" ");
+        const subject = `Breaking News: ${title}`;
+        const formattedDate = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+
+        await Promise.all(
+            subscribedUsers.map(user =>
+                sendMail("news", subject, user?.email, {
+                    title,
+                    categoryName: categoryData.name,
+                    tagName: tagData.name,
+                    createdDate: formattedDate,
+                    heroImage: req.body.mainImage,
+                    description: shortDescription,
+                    newsURL: `https://techshperebulletin.com/detail/${newsSave?._id}`
+                })
+            )
+        );
+        return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.NEWS_ADD, newsSave);
     } catch (err) {
         console.error("createNews Error:", err);
         return response.error(res, resStatusCode.INTERNAL_SERVER_ERROR, resMessage.INTERNAL_SERVER_ERROR);
@@ -172,7 +200,7 @@ export const deleteNewsById = async (req, res) => {
 //         const topNews = await newsService.getTopNewsByAnalytics(newsIds);
 //         return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.ACTION_COMPLETE, topNews);
 //     } catch (error) {
-//         console.error('getAllHomeNews Error:', error);   
+//         console.error('getAllHomeNews Error:', error);
 //         return response.error(res, resStatusCode.INTERNAL_SERVER_ERROR, resMessage.INTERNAL_SERVER_ERROR);
 //     };
 // };
