@@ -5,7 +5,6 @@ import cors from "cors";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import apiRouter from "./src/routes/index.js";
-
 import connectDB from "./db/dbconnect.js";
 
 const dotenv = await import("dotenv");
@@ -23,6 +22,7 @@ app.use(cors());
 app.use(json());
 app.use(urlencoded({ extended: true }));
 app.use(express.static(join(__dirname, "public")));
+
 
 app.use("/api", apiRouter);
 

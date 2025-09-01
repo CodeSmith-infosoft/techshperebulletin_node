@@ -5,10 +5,11 @@ import {
 import response from "../utils/response.js";
 import { resStatusCode, resMessage } from "../utils/constants.js";
 import { categoryService } from "../services/categoryService.js";
+import { tagsService } from "../services/tagsService.js";
 
 export const createCategory = async (req, res) => {
     const { name, description } = req.body;
-        name = name.trim();
+    name = name.trim();
     const { error } = categoryValidation.validate({ name, description });
     if (error) {
         return response.error(res, resStatusCode.CLIENT_ERROR, error.details[0].message);
@@ -89,5 +90,25 @@ export const updateCategoryById = async (req, res) => {
     } catch (error) {
         console.error('Error in updateCategoryById:', error);
         return response.error(res, resStatusCode.INTERNAL_SERVER_ERROR, resMessage.INTERNAL_SERVER_ERROR, {});
+    };
+};
+
+export const getAllCategoryWithTags = async (req, res) => {
+    try {
+
+        const categories = await categoryService.getAllCategory({ filter: {} });
+        const categoriesWithTags = await Promise.all(
+            categories.map(async (category) => {
+                const tags = await tagsService.getTagsByCategoryId(category._id);
+                return {
+                    ...category._doc,
+                    tags,
+                };
+            }),
+        );
+        return response.success(res, resStatusCode.ACTION_COMPLETE, resMessage.CATEGORY_LIST, categoriesWithTags);
+    } catch (error) {
+        console.error('getAllCategoryWithTags Error:', error);
+        return response.error(res, resStatusCode.INTERNAL_SERVER_ERROR, resMessage.INTERNAL_SERVER_ERROR);
     };
 };
