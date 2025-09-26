@@ -10,66 +10,109 @@ const analyticsDataClient = new BetaAnalyticsDataClient({
     keyFilename: path.join(__dirname, "../../config/mailer/ga-credentials.json"),
 });
 
+import { newsModel } from "../models/newsModel.js";
+import { CLIENT_RENEG_LIMIT } from "tls";
+
 const GA4_PROPERTY_ID = process.env.GA4_PROPERTY_ID;
 export class analyticsService {
-    static async fetchEventReport() {
-        try {
-            const [response] = await analyticsDataClient.runReport({
-                property: `properties/${GA4_PROPERTY_ID}`,
-                dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
-                dimensions: [{ name: "pagePath" }],
-                metrics: [{ name: "screenPageViews" }],
-            });
 
-            return response.rows.map((row) => ({
-                event: row.dimensionValues[0].value,
-                count: row.metricValues[0].value,
-            }));
-        } catch (error) {
-            return error;
-        }
-    }
+    // static async fetchEventReport(startDate, endDate) {
+    //     try {
+    //         const [response] = await analyticsDataClient.runReport({
+    //             property: `properties/${GA4_PROPERTY_ID}`,
+    //             dateRanges: [{ startDate: startDate ?? "30daysAgo", endDate: endDate ?? "today" }],
+    //             dimensions: [{ name: "pagePath" }],
+    //             metrics: [{ name: "screenPageViews" }],
+    //         });
 
-    static async fetchTopNewsViews() {
-        try {
-            const [response] = await analyticsDataClient.runReport({
-                property: `properties/${GA4_PROPERTY_ID}`,
-                dateRanges: [{ startDate: "7daysAgo", endDate: "today" }],
-                dimensions: [{ name: "pagePath" }],
-                metrics: [{ name: "screenPageViews" }],
-                orderBys: [
-                    {
-                        metric: {
-                            metricName: "screenPageViews",
-                        },
-                        desc: true,
-                    },
-                ],
-                limit: 100,
-            });
+    //         if (!response.rows || response.rows.length === 0) {
+    //             return { news: [], blog: [], others: [] };
+    //         };
 
-            const newsData = [];
+    //         const news = [];
+    //         const blog = [];
+    //         const others = [];
 
-            response.rows.forEach((row) => {
-                const pagePath = row.dimensionValues[0].value;
-                const pageViews = row.metricValues[0].value;
+    //         response.rows.forEach((row) => {
+    //             const eventPath = row.dimensionValues?.[0]?.value || "";
+    //             const count = row.metricValues?.[0]?.value || "0";
 
-                const match = pagePath.match(/^\/detail\/([a-zA-Z0-9]+)$/);
-                if (match) {
-                    newsData.push({
-                        newsId: match[1],
-                        views: Number(pageViews),
-                    });
+    //             if (eventPath.startsWith("/detail/")) {
+    //                 const id = eventPath.replace("/detail/", "");
+    //                 news.push({ event: id, count });
+    //             } else if (eventPath.startsWith("/blog/")) {
+    //                 blog.push({ event: eventPath, count });
+    //             } else {
+    //                 others.push({ event: eventPath, count });
+    //             };
+    //         });
+
+    //         return { news, blog, others };
+    //     } catch (error) {
+    //         console.error("Error fetching event report:", error);
+    //         return { news: [], blog: [], others: [] };
+    //     };
+    // };
+
+    static async fetchEventReport(startDate, endDate) {
+    try {
+        // ✅ First call: Page Paths
+        const [pageResponse] = await analyticsDataClient.runReport({
+            property: `properties/${GA4_PROPERTY_ID}`,
+            dateRanges: [{ startDate: startDate ?? "30daysAgo", endDate: endDate ?? "today" }],
+            dimensions: [{ name: "pagePath" }],
+            metrics: [{ name: "screenPageViews" }]
+        });
+
+        const news = [];
+        const blog = [];
+        const others = [];
+
+        if (pageResponse.rows && pageResponse.rows.length > 0) {
+            pageResponse.rows.forEach((row) => {
+                const eventPath = row.dimensionValues?.[0]?.value || "";
+                const count = row.metricValues?.[0]?.value || "0";
+
+                if (eventPath.startsWith("/detail/")) {
+                    news.push({ event: eventPath.replace("/detail/", ""), count });
+                } else if (eventPath.startsWith("/blog/")) {
+                    blog.push({ event: eventPath, count });
+                } else {
+                    others.push({ event: eventPath, count });
                 }
             });
-            const top5NewsIds = newsData
-                .sort((a, b) => b.views - a.views)
-                .slice(0, 5)
-                .map((item) => item.newsId);
-            return top5NewsIds;
-        } catch (error) {
-            console.error("GA4 Error:", error);
-            return [];
         }
+console.log('startDate', startDate)
+        // ✅ Second call: Top Countries
+        const [countryResponse] = await analyticsDataClient.runReport({
+            property: `properties/${GA4_PROPERTY_ID}`,
+            dateRanges: [{ startDate: startDate ?? "30daysAgo", endDate: endDate ?? "today" }],
+            dimensions: [{ name: "country" }],
+            metrics: [{ name: "screenPageViews" }],
+            orderBys: [{ desc: true, metric: { metricName: "screenPageViews" } }],
+            limit: 5
+        });
+
+        const countries = (countryResponse.rows || []).map(row => ({
+            country: row.dimensionValues[0].value,
+            count: Number(row.metricValues[0].value)
+        }));
+
+        return { news, blog, others, countries };
+
+    } catch (error) {
+        console.error("Error fetching event report:", error);
+        return { news: [], blog: [], others: [], countries: [] };
     }
 }
+
+    static async topNews(data) {
+        try {
+            const topNewsDetails = await newsModel.find({ _id: { $in: data } }).select('_id title mainImage description createdAt');
+            return (topNewsDetails);
+        } catch (error) {
+            return (error);
+        };
+    };
+
+};

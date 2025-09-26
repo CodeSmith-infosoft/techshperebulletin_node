@@ -6,7 +6,7 @@ import {
 import { validateAccessToken, authorizeRoles } from "../middleware/auth.js";
 import { newsImages } from "../utils/uploadHandler.js";
 
-router.get("/getEventStats", validateAccessToken, authorizeRoles(0), getEventStats);
+router.get("/getEventStats", getEventStats);
 // router.get("/getAllNews", getAllNews);
 // router.get("/adminGetAllNews", validateAccessToken, authorizeRoles(0), getAllNews);
 // router.get("/getAllHomeNews", getAllHomeNews);

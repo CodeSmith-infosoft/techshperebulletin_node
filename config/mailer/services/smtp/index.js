@@ -11,9 +11,7 @@ const transport = createTransport({
     pass: process.env.SMTP_PASSWORD,
   },
 });
-console.log("SMTP_HOST", process.env.SMTP_PORT)
-console.log("SMTP_HOST", process.env.SMTP_HOST)
-console.log("SMTP_HOST", process.env.SMTP_SECURE)
+
 const sendMail = (to, from, subject, html, type = 'simple', attachmentBuffer = null, filename = null) => {
   const mailOptions = {
     to,
